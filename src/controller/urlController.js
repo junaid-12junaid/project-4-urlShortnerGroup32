@@ -15,11 +15,11 @@ const createUrl=async function(req,res){
         
         if(!urlRegex.test(longUrl)) return res.status(400).send({status:false,message:"Please give the url in valid Formate"})
 
-        let baseUrl='https://localhost:3000'
+        let baseUrl='http://localhost:3000/'
 
-        let urlCode=shortid.generate(longUrl).trim().toLowerCase()
+        let urlCode=shortid.generate().toLowerCase()
         
-        let shortUrl=baseUrl + "/" +urlCode
+        let shortUrl=baseUrl+urlCode
 
         const obj={
             longUrl:longUrl,
@@ -27,7 +27,7 @@ const createUrl=async function(req,res){
             shortUrl:shortUrl,
         }
         const createUrl=await urlModel.create(obj)
-        return res.status(201).send({status:true,data:createUrl})
+        return res.status(201).send({status:true,data:obj})
 
     } catch (error) {
        return res.status(500).send({error:error.message}) 
@@ -44,7 +44,8 @@ const getUrlCode = async function(req,res){
 
         let findUrl1=findUrl.longUrl
     
-       return res.status(302).redirect( findUrl1)
+       
+       return res.status(302).redirect(findUrl1)
         
     } catch (error) {
         return res.status(500).send({error:error.message})     
