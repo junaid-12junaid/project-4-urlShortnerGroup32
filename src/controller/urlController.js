@@ -33,5 +33,25 @@ const createUrl=async function(req,res){
        return res.status(500).send({error:error.message}) 
     }
 }
+const getUrlCode = async function(req,res){
 
-module.exports={createUrl}
+    try {
+        let urlCode = req.params.urlCode
+
+        let findUrl = await urlModel.findOne({urlCode:urlCode}) 
+        
+        if(!findUrl){
+            return res.status(404).send({status:false, message:`This ${req.params.urlCode} Url Code is not found.`})
+        }
+        let findUrl1=findUrl.longUrl
+    
+
+        res.status(302).redirect( findUrl1)
+        
+    } catch (error) {
+        return res.status(500).send({error:error.message})     
+    }
+}
+
+
+module.exports={createUrl,getUrlCode}
