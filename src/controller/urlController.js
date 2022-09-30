@@ -1,7 +1,7 @@
 const shortid=require("shortid")
 const validurl=require("valid-url")
 const urlModel=require("../models/urlModel")
-const{isValid,isVAlidRequestBody,urlRegex}=require('../validator/validation')
+const{isValid,isVAlidRequestBody,urlRegex,baseUrlRegex}=require('../validator/validation')
 
 const createUrl=async function(req,res){
     try {
@@ -13,13 +13,19 @@ const createUrl=async function(req,res){
 
         if(!isValid(longUrl)) return res.status(400).send({status:false,message:"The longUrl is mandatory and Should have non empty string"})
         
-        if(!urlRegex.test(longUrl)) return res.status(400).send({status:false,message:"Please give the url in valid Formate"})
+        const getlongUrl=await urlModel.findOne({longUrl:longUrl})
 
-        let baseUrl='http://localhost:3000/'
+        if(getlongUrl) return res.status(400).send({status:false,message:`Use this shorturl ${getlongUrl.shortUrl} of this longUrl as this longUrl is already Exist`})
 
+         if(!urlRegex.test(longUrl)) return res.status(400).send({status:false,message:"Please give the long url in valid Formate"})
+
+        let baseUrl='http://localhost:3000'
+
+        if(!baseUrlRegex.test(baseUrl)) return res.status(400).send({status:false,message:"Please give the baseurl in valid Formate"})
+       
         let urlCode=shortid.generate().toLowerCase()
-        
-        let shortUrl=baseUrl+urlCode
+
+        let shortUrl=baseUrl+'/'+urlCode
 
         const obj={
             longUrl:longUrl,

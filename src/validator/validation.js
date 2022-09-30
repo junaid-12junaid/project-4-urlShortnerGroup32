@@ -9,6 +9,9 @@
         return Object.keys(requestBody).length > 0
     }
 
-    const urlRegex= /(http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/+#-]*[\w@?^=%&amp;\/+#-])?/
+    const urlRegex=/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/
 
-    module.exports={isValid,isVAlidRequestBody,urlRegex}
+
+    const baseUrlRegex=/^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$/
+ 
+    module.exports={isValid,isVAlidRequestBody,urlRegex,baseUrlRegex}
