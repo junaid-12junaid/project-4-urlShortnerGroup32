@@ -22,7 +22,7 @@ const redisClient = redis.createClient(
   
 
 
-  
+
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
@@ -84,7 +84,9 @@ const getUrlCode = async function(req,res){
 
         let findUrlCache=await GET_ASYNC(`${urlCode}`)
         if(findUrlCache){
-            return res.status(302).redirect(JSON.parse(findUrlCache))
+            let jsonLongUrl=JSON.parse(findUrlCache)
+            let longUrl=jsonLongUrl.longUrl
+            return res.status(302).redirect(longUrl)
         }
 
         let findUrl = await urlModel.findOne({urlCode:urlCode}) 
