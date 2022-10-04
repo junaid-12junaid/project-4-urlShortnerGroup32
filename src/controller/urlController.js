@@ -6,7 +6,7 @@ const redis=require('redis')
 const {promisify}=require('util')
 
 
-
+//Cache Connect==============================>
 const redisClient = redis.createClient(
     17924,
     "redis-17924.c301.ap-south-1-1.ec2.cloud.redislabs.com",
@@ -21,13 +21,13 @@ const redisClient = redis.createClient(
   });
   
 
-
-
-
+//SET and GET In cache=======================>
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 
+
+//Create ShortUrl by LongUrl==================================>
 const createUrl=async function(req,res){
     try {
         const body=req.body
@@ -38,10 +38,12 @@ const createUrl=async function(req,res){
 
         if(!isValid(longUrl)) return res.status(400).send({status:false,message:"The longUrl is mandatory and Should have non empty string"})
         
+        
         let cachedUrlData = await GET_ASYNC(`${longUrl}`)
 
         if(cachedUrlData){
-            return res.status(200).send({status:false, message:'This Url is already in Cache', redisData: JSON.parse(cachedUrlData)})
+            let cacheShortUrl=JSON.parse(cachedUrlData)
+            return res.status(200).send({status:false, message:`This Url is already in Cache so use this shortUrl ${cacheShortUrl.shortUrl}` })
         }
 
         if(!urlRegex.test(longUrl)) return res.status(400).send({status:false,message:"Please give the long url in valid Formate"})
@@ -51,7 +53,7 @@ const createUrl=async function(req,res){
         if(getlongUrl){
            await SET_ASYNC(`${longUrl}`, JSON.stringify(getlongUrl))
 
-            return res.status(200).send({status:false, message:"This LongUrl is already Registered in DB", data:getlongUrl})
+            return res.status(200).send({status:false, message:`For This LongUrl use this ShortUrl ${getlongUrl.shortUrl} which is already Registered in DB`})
             }
 
         let baseUrl='http://localhost:3000'
@@ -76,6 +78,8 @@ const createUrl=async function(req,res){
 }
 
 
+
+//Redirecting To LongUrl from UrlCode========================>
 const getUrlCode = async function(req,res){
 
         try {
@@ -91,10 +95,10 @@ const getUrlCode = async function(req,res){
 
         let findUrl = await urlModel.findOne({urlCode:urlCode}) 
         
-        if(!findUrl) return res.status(404).send({status:false, message:`This ${req.params.urlCode} Url Code is not found.`})
+        if(!findUrl) return res.status(404).send({status:false, message:`This ${req.params.urlCode} urlCode is not found.`})
 
         await SET_ASYNC(`${urlCode}`, JSON.stringify(findUrl))
-
+       
         return res.status(302).redirect(findUrl.longUrl)     
 
 } 
